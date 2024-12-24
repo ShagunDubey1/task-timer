@@ -1,10 +1,13 @@
 import apis from '@/apis';
-import axios from 'axios';
+import axiosConfig from './axiosInstance';
+import { AxiosResponse } from 'axios';
 
-export default async function CreateNewTask() {
-  return await axios.post(apis.task.create, {
-    headers: {
-      // Authorization: `Bearer ${accessToken}`,
-    },
-  });
+export interface CreateNewTaskResponse {
+  id: string;
+}
+
+export default async function CreateNewTask(): Promise<
+  AxiosResponse<CreateNewTaskResponse>
+> {
+  return await axiosConfig.get(apis.task.create);
 }
