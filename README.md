@@ -40,12 +40,13 @@ A task management app that allows users to create, manage, and track tasks using
 ## Tech Stack
 
 Expo, React Native, Expo-notfication, Expo-secure-storage, Tanstack Query, Zod, Zustand, axios
+
 ## Demo
+Below is the link to the GitHub repository and a screen recording of the app's functionality:
 
-Click the image below to watch a demo video of the working app:
-[![Watch the demo video](https://img.youtube.com/vi/<YOUR_YOUTUBE_VIDEO_ID>/0.jpg)](https://www.youtube.com/watch?v=<YOUR_YOUTUBE_VIDEO_ID>)
-
-
+## Screen Recording
+You can view the screen recording of the app here:  
+[Screen Recording on Google Drive](https://drive.google.com/file/d/1tPeZe0Ju5sj6u7x59Y3BwggG4rqevMVM/view?usp=sharing)
 
 ## Installation
 
