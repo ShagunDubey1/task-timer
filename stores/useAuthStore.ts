@@ -1,5 +1,3 @@
-// stores/useAuthStore.ts
-
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import * as SecureStore from 'expo-secure-store';
@@ -10,7 +8,6 @@ interface AuthState {
   logout: () => void;
 }
 
-// Custom storage object using expo-secure-store
 const secureStorage = createJSONStorage(() => ({
   getItem: async (key: string) => {
     return await SecureStore.getItemAsync(key);

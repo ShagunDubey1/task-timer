@@ -23,8 +23,11 @@ import literals from '@/constants/literals';
 import useLoginForm from '@/libs/hooks/useLoginForm';
 import CustomInput from '@/libs/components/CustomInput';
 import { Entypo, MaterialIcons } from '@expo/vector-icons';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const LoginScreen = () => {
+  const { setIsAuthenticated } = useAuthStore();
+  
   const [loginDetails, setLoginDetails] = useState<LoginFormProps>({
     username: 'mavehealth',
     password: '0Eq2LjfABRY95',
@@ -44,6 +47,7 @@ const LoginScreen = () => {
           literals.SecureStorageKeys.REFRESH_TOKEN,
           refresh_token
         );
+        setIsAuthenticated(true);
         router.push('/tasks');
       } catch (error) {
         Dialog.show({

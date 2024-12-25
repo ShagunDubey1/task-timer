@@ -3,6 +3,7 @@ import { deleteToken, getToken, saveToken } from '../utils/secureStore';
 import literals from '@/constants/literals';
 import apis from '@/apis';
 import { router } from 'expo-router';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const axiosConfig = axios.create({
   baseURL: process.env.EXPO_PUBLIC_BASE_URL!,
@@ -29,9 +30,11 @@ axiosConfig.interceptors.response.use(
     return response;
   },
   async (error) => {
+    const { setIsAuthenticated } = useAuthStore();
+
     const originalRequest = error.config;
     console.log('3------->', error);
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error.response.status === 401) {
       console.log('2------->');
 
       originalRequest._retry = true;
@@ -66,6 +69,8 @@ axiosConfig.interceptors.response.use(
           console.log('Token refresh failed:', error);
           await deleteToken(literals.SecureStorageKeys.ACCESS_TOKEN);
           await deleteToken(literals.SecureStorageKeys.REFRESH_TOKEN);
+          setIsAuthenticated(false);
+
           router.replace('/login');
         }
       }

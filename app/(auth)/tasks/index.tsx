@@ -1,4 +1,3 @@
-import { Colors, Spacing } from '@/constants';
 import QueryKeys from '@/constants/querykeys';
 import CustomButton from '@/libs/components/CustomButton';
 import Overlay from '@/libs/components/Overlay';
@@ -6,21 +5,40 @@ import TaskItem from '@/libs/components/TaskItem';
 import CreateNewTask from '@/libs/services/createNewTask';
 import getAllTask from '@/libs/services/getAllTasks';
 import getNextTask from '@/libs/services/getNextTask';
+import { styles } from '@/libs/styles/tasks';
 import { useTaskRoomStore } from '@/stores/useTaskRoomStore';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import {
-  View,
-  Button,
   FlatList,
   Text,
   RefreshControl,
-  StyleSheet,
-  Alert,
   ActivityIndicator,
 } from 'react-native';
 import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import * as Notifications from 'expo-notifications';
+import { Task } from '@/@types';
+import { calculateTriggerTime } from '@/libs/utils/calculateTriggerTime';
+
+Notifications.setNotificationCategoryAsync('task-actions', [
+  {
+    identifier: 'done',
+    buttonTitle: 'Done',
+    options: {
+      isDestructive: false,
+      opensAppToForeground: false,
+    },
+  },
+  {
+    identifier: 'skip',
+    buttonTitle: 'Skip',
+    options: {
+      isDestructive: true,
+      opensAppToForeground: false,
+    },
+  },
+]);
 
 const TaskRoomScreen = () => {
   const { taskRoomId, setTaskRoomId } = useTaskRoomStore();
@@ -53,18 +71,19 @@ const TaskRoomScreen = () => {
     },
   });
 
-  const { isError, refetch, isLoading, isSuccess, data, error, isFetching } =
-    useQuery({
-      queryKey: [QueryKeys.GET_ALL_TASKS],
-      queryFn: () => getAllTask({ id: taskRoomId! }),
-      enabled: !!taskRoomId,
-    });
+  const { isError, refetch, isLoading, data, error, isFetching } = useQuery({
+    queryKey: [QueryKeys.GET_ALL_TASKS],
+    queryFn: () => getAllTask({ id: taskRoomId! }),
+    enabled: !!taskRoomId,
+  });
 
   const {
     isLoading: isNextTaskLoading,
     data: nextTaskData,
-    error: nextTaskError,
+    isError: isNextTaskError,
     refetch: nextTaskRefetch,
+    error: nextTaskError,
+    isSuccess: isNextTaskSuccess,
   } = useQuery({
     queryKey: [QueryKeys.GET_NEXT_TASK],
     queryFn: () => getNextTask({ id: taskRoomId! }),
@@ -75,8 +94,45 @@ const TaskRoomScreen = () => {
     if (taskRoomId) refetch();
   }, [taskRoomId]);
 
-  console.log('get all', error, data?.data);
-  // console.log('Next task:', nextTaskData?.data, nextTaskError);
+  useEffect(() => {
+    const subscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        const { actionIdentifier, notification } = response;
+
+        if (actionIdentifier === 'done') {
+          console.log('Task marked as done!');
+        }
+
+        if (actionIdentifier === 'skip') {
+          console.log('Task skipped!');
+        }
+
+        Notifications.dismissNotificationAsync(notification.request.identifier);
+      }
+    );
+
+    return () => subscription.remove();
+  }, []);
+
+  useEffect(() => {
+    if (isNextTaskSuccess) {
+      sendNotification(nextTaskData.data);
+    }
+  }, [nextTaskData]);
+
+  const sendNotification = async (task: Task) => {
+    const { title, starts_in } = task;
+    const triggerTime = calculateTriggerTime(starts_in);
+
+    await Notifications.scheduleNotificationAsync({
+      content: {
+        title: title,
+        body: 'Reminder: You have a task!',
+        categoryIdentifier: 'task-actions',
+      },
+      trigger: triggerTime,
+    });
+  };
 
   const handleCreateNewTaskRoom = () => {
     createTaskRoom();
@@ -87,19 +143,19 @@ const TaskRoomScreen = () => {
     refetch();
   };
 
-  // if (isLoading)
-  //   return (
-  //     <Overlay>
-  //       <ActivityIndicator size={'large'} color={'gray'} />
-  //     </Overlay>
-  //   );
+  if (isLoading)
+    return (
+      <Overlay>
+        <ActivityIndicator size={'large'} color={'gray'} />
+      </Overlay>
+    );
 
-  // if (isError)
-  //   return (
-  //     <Overlay>
-  //       <Text>Error: {error.message}</Text>
-  //     </Overlay>
-  //   );
+  if (isError || isNextTaskError)
+    return (
+      <Overlay>
+        <Text>Error: {error?.message || nextTaskError?.message}</Text>
+      </Overlay>
+    );
 
   return (
     <SafeAreaView style={styles.container}>
@@ -114,14 +170,13 @@ const TaskRoomScreen = () => {
 
       {taskRoomId && (
         <>
-          <Text style={{ marginVertical: 10 }}>
-            Current Room ID: {taskRoomId}
-          </Text>
+          <Text style={styles.title}>Current Room ID: {taskRoomId}</Text>
 
           <FlatList
             data={data?.data}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => <TaskItem {...item} />}
+            showsVerticalScrollIndicator={false}
             refreshControl={
               <RefreshControl refreshing={isFetching} onRefresh={refetch} />
             }
@@ -140,14 +195,3 @@ const TaskRoomScreen = () => {
 };
 
 export default TaskRoomScreen;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.FOREGROUND,
-    padding: Spacing.SCALE_16,
-    width: '100%',
-  },
-});

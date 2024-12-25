@@ -3,9 +3,7 @@ import React from 'react';
 import { Task } from '@/@types';
 import { parseISO, format } from 'date-fns';
 import { Colors, Spacing, Typography } from '@/constants';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Fontisto from '@expo/vector-icons/Fontisto';
-import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 
 const TaskItem = (props: Task) => {
   const { title, starts_at, starts_in } = props;
