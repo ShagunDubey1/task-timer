@@ -9,10 +9,23 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_BASE_URL": "https://mavehiringserver.azurewebsites.net",
+        "EXPO_PUBLIC_API_URL": "https://mavehiringserver.azurewebsites.net/api"
+      }
     },
     "production": {
-      "autoIncrement": true
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_BASE_URL": "https://mavehiringserver.azurewebsites.net",
+        "EXPO_PUBLIC_API_URL": "https://mavehiringserver.azurewebsites.net/api"
+      }
     }
   },
   "submit": {
