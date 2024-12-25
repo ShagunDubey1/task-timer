@@ -29,8 +29,8 @@ const LoginScreen = () => {
   const { setIsAuthenticated } = useAuthStore();
   
   const [loginDetails, setLoginDetails] = useState<LoginFormProps>({
-    username: 'mavehealth',
-    password: '0Eq2LjfABRY95',
+    username: '',
+    password: '',
   });
 
   const LoginForm = useLoginForm(loginDetails);
