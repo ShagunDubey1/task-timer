@@ -14,12 +14,16 @@ import {
   Text,
   RefreshControl,
   ActivityIndicator,
+  Image,
+  View,
 } from 'react-native';
 import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Notifications from 'expo-notifications';
 import { Task } from '@/@types';
 import { calculateTriggerTime } from '@/libs/utils/calculateTriggerTime';
+import { CreateTaskImg } from '@/assets/images';
+import { Spacing } from '@/constants';
 
 Notifications.setNotificationCategoryAsync('task-actions', [
   {
@@ -160,12 +164,22 @@ const TaskRoomScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       {!taskRoomId && (
-        <CustomButton
-          text="Create New Task Room"
-          onpress={handleCreateNewTaskRoom}
-          type="primary"
-          isLoading={newTaskStatus === 'pending'}
-        />
+        <View
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: Spacing.SCALE_30,
+            width: '100%',
+          }}
+        >
+          <Image source={CreateTaskImg} style={{}} />
+          <CustomButton
+            text="Create New Task Room"
+            onpress={handleCreateNewTaskRoom}
+            type="primary"
+            isLoading={newTaskStatus === 'pending'}
+          />
+        </View>
       )}
 
       {taskRoomId && (
