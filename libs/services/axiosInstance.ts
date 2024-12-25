@@ -30,19 +30,26 @@ axiosConfig.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
+    console.log('3------->', error);
     if (error.response.status === 401 && !originalRequest._retry) {
+      console.log('2------->');
+
       originalRequest._retry = true;
       const refreshToken = await getToken(
         literals.SecureStorageKeys.REFRESH_TOKEN
       );
+      console.log('1------->', refreshToken);
+
       if (refreshToken) {
         try {
           const response = await axios.post(apis.refresh, {
             refreshToken,
           });
 
-          const newAccessToken = response.data.accessToken;
-          const newRefreshToken = response.data.accessToken;
+          console.log(response.data);
+
+          const newAccessToken = response.data.access_token;
+          const newRefreshToken = response.data.refresh_token;
 
           await saveToken(
             literals.SecureStorageKeys.ACCESS_TOKEN,

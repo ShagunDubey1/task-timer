@@ -7,6 +7,6 @@ export default {
   task: {
     create: `${APIURL}/tasks/new`,
     getAll: `${APIURL}/tasks`,
-    getNew: `${APIURL}/tasks/new`,
+    getNext: `${APIURL}/tasks/new`,
   },
 };

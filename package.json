@@ -20,6 +20,7 @@
     "@react-navigation/native": "^7.0.14",
     "@tanstack/react-query": "^5.62.10",
     "axios": "^1.7.9",
+    "date-fns": "^4.1.0",
     "expo": "~52.0.23",
     "expo-blur": "~14.0.1",
     "expo-constants": "~17.0.3",
@@ -44,7 +45,9 @@
     "react-native-web": "~0.19.13",
     "react-native-webview": "13.12.5",
     "zod": "^3.24.1",
-    "zustand": "^5.0.2"
+    "zustand": "^5.0.2",
+    "expo-notifications": "~0.29.11",
+    "expo-device": "~7.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

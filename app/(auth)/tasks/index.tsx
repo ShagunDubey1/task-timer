@@ -2,7 +2,11 @@ import { Colors, Spacing } from '@/constants';
 import QueryKeys from '@/constants/querykeys';
 import CustomButton from '@/libs/components/CustomButton';
 import Overlay from '@/libs/components/Overlay';
+import TaskItem from '@/libs/components/TaskItem';
 import CreateNewTask from '@/libs/services/createNewTask';
+import getAllTask from '@/libs/services/getAllTasks';
+import getNextTask from '@/libs/services/getNextTask';
+import { useTaskRoomStore } from '@/stores/useTaskRoomStore';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import {
@@ -19,13 +23,15 @@ import { ALERT_TYPE, Dialog } from 'react-native-alert-notification';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const TaskRoomScreen = () => {
-  const [currentRoomId, setCurrentRoomId] = useState<string | null>(null);
+  const { taskRoomId, setTaskRoomId } = useTaskRoomStore();
 
   const { mutate: createTaskRoom, status: newTaskStatus } = useMutation({
     mutationKey: [QueryKeys.CREATE_TASK],
     mutationFn: () => CreateNewTask(),
     onSuccess: (data) => {
-      console.log('Order created successfully', data.data);
+      console.log('Task New room created successfully', data.data.id);
+      setTaskRoomId(data.data.id);
+      console.log('Task Room ID set:', data.data.id);
       Dialog.show({
         type: ALERT_TYPE.SUCCESS,
         title: 'Task Room Created',
@@ -37,7 +43,7 @@ const TaskRoomScreen = () => {
       });
     },
     onError: (error) => {
-      console.log(`Error creating order: ${error}`);
+      console.log(`Error creating new room: ${error}`);
       Dialog.show({
         type: ALERT_TYPE.DANGER,
         title: 'Error!',
@@ -47,15 +53,38 @@ const TaskRoomScreen = () => {
     },
   });
 
-  // const { isError, refetch, isFetched, isLoading, isSuccess, data, error } =
-  //   useQuery({
-  //     queryKey: [QueryKeys.CREATE_TASK],
-  //     queryFn: CreateNewTask,
-  //     enabled: false,
-  //   });
+  const { isError, refetch, isLoading, isSuccess, data, error, isFetching } =
+    useQuery({
+      queryKey: [QueryKeys.GET_ALL_TASKS],
+      queryFn: () => getAllTask({ id: taskRoomId! }),
+      enabled: !!taskRoomId,
+    });
+
+  const {
+    isLoading: isNextTaskLoading,
+    data: nextTaskData,
+    error: nextTaskError,
+    refetch: nextTaskRefetch,
+  } = useQuery({
+    queryKey: [QueryKeys.GET_NEXT_TASK],
+    queryFn: () => getNextTask({ id: taskRoomId! }),
+    enabled: false,
+  });
+
+  useEffect(() => {
+    if (taskRoomId) refetch();
+  }, [taskRoomId]);
+
+  console.log('get all', error, data?.data);
+  // console.log('Next task:', nextTaskData?.data, nextTaskError);
 
   const handleCreateNewTaskRoom = () => {
     createTaskRoom();
+  };
+
+  const handleGetNextTask = () => {
+    nextTaskRefetch();
+    refetch();
   };
 
   // if (isLoading)
@@ -73,32 +102,37 @@ const TaskRoomScreen = () => {
   //   );
 
   return (
-    <SafeAreaView  style={styles.container}>
-      <CustomButton
-        text="Create New Task Room"
-        onpress={handleCreateNewTaskRoom}
-        type="primary"
-        isLoading={newTaskStatus === 'pending'}
-      />
+    <SafeAreaView style={styles.container}>
+      {!taskRoomId && (
+        <CustomButton
+          text="Create New Task Room"
+          onpress={handleCreateNewTaskRoom}
+          type="primary"
+          isLoading={newTaskStatus === 'pending'}
+        />
+      )}
 
-      {currentRoomId && (
+      {taskRoomId && (
         <>
           <Text style={{ marginVertical: 10 }}>
-            Current Room ID: {currentRoomId}
+            Current Room ID: {taskRoomId}
           </Text>
-          {/* <FlatList
-            data={tasks}
+
+          <FlatList
+            data={data?.data}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <View style={{ padding: 10, borderBottomWidth: 1 }}>
-                <Text>{item.title}</Text>
-                <Text>{item.completed ? 'Completed' : 'Incomplete'}</Text>
-              </View>
-            )}
+            renderItem={({ item }) => <TaskItem {...item} />}
             refreshControl={
               <RefreshControl refreshing={isFetching} onRefresh={refetch} />
             }
-          /> */}
+          />
+
+          <CustomButton
+            text="Get Next Task"
+            onpress={handleGetNextTask}
+            type="primary"
+            isLoading={isNextTaskLoading}
+          />
         </>
       )}
     </SafeAreaView>
@@ -112,7 +146,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: Colors.WHITE,
+    backgroundColor: Colors.FOREGROUND,
     padding: Spacing.SCALE_16,
+    width: '100%',
   },
 });
