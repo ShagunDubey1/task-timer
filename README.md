@@ -1,50 +1,119 @@
-# Welcome to your Expo app 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+# Task Timer App
 
-## Get started
+A task management app that allows users to create, manage, and track tasks using notifications with action buttons for completion or skipping tasks.
 
-1. Install dependencies
 
-   ```bash
-   npm install
-   ```
+## Features
 
-2. Start the app
+### 1. **Authentication**
+- **Login Form**: Users can log in with a username and password, validation is implemented using zod.
+- **Secure Token Storage**: Authentication tokens are securely stored using `expo-secure-store`.
+- **Error Handling**: Handles errors gracefully during login attempts.
+- **Token Validation**: On app startup, the app checks for valid tokens to keep users logged in.
+- **Bonus**: 
+    - **Refresh Token**: Automatically refreshes access tokens when expired to maintain session without forcing users to log in again.
+   
 
-   ```bash
-    npx expo start
-   ```
+### 2. **Task Room Management**
+- **Create Task Room**: A button that allows users to create new task rooms.
+- **Room ID Display**: Displays the current room’s unique ID for reference.
+- **Task List**: A list showing all tasks associated with the current task room.
+- **Bonus**: 
+    - **Pull-to-Refresh**: A pull-down gesture to refresh the task list for real-time updates.
 
-In the output, you'll find options to open the app in a
+### 3. **Task Management**
+- **Get Next Task**: A button that fetches and displays the next available task for the user.
+- **Task Details**: Displays task title and start time.
+- **Task Notifications**:
+    - Sends local notifications based on the time remaining (`starts_in`) for each task.
+    - Notifications display the task title and offer two action buttons: "Done" and "Skip".
+    - Both actions dismiss the notification when tapped.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Bonus Features
+1. **Secure Token Storage**: Uses `expo-secure-store` to safeguard user tokens.
+2. **Token Refresh**: Automatically refreshes access tokens to prevent session expiration.
+3. **Pull-to-Refresh**: Refresh the task list to reflect the most up-to-date tasks.
+4. **State Mangement**: State mangement is done using zustand for persistent storage as well.
+5. **Validation**: Form validation using custom hooks and zod.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## Tech Stack
 
-## Get a fresh project
+Expo, React Native, Expo-notfication, Expo-secure-storage, Tanstack Query, Zod, Zustand, axios
+## Demo
 
-When you're ready, run:
+Click the image below to watch a demo video of the working app:
+[![Watch the demo video](https://img.youtube.com/vi/<YOUR_YOUTUBE_VIDEO_ID>/0.jpg)](https://www.youtube.com/watch?v=<YOUR_YOUTUBE_VIDEO_ID>)
 
+
+
+## Installation
+
+To run the Task Timer App on your device, follow these steps:
+
+### 1. Clone the Repository
 ```bash
-npm run reset-project
+git clone https://github.com/ShagunDubey1/task-timer.git
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+    
+### 2. Install dependencies:
 
-## Learn more
+```bash
+    npm Install
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+### 3. Set up environment variables:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Create a .env file in the root directory and add the following:
 
-## Join the community
+```bash
+    EXPO_PUBLIC_BASE_URL = 'your base url'
+    EXPO_PUBLIC_API_URL = 'your api url'
+```
 
-Join our community of developers creating universal apps.
+### 4. Install Expo CLI (if not installed)
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+    npm install -g expo-cli
+```
+
+### 5. Install Expo Dev Client
+
+```bash
+    expo install expo-dev-client
+```
+
+
+### 6. Configure Expo EAS (Expo Application Services)
+(required for project ID)
+
+```bash
+    eas build:configure
+```
+
+### 7. Build the Development Client:
+To install and test the development client on your physical device:
+
+```bash
+   eas build --profile development --platform android
+   or
+   eas build --profile development --platform ios
+```
+### or
+
+### 8. Run the app on simulator or expo go
+
+```bash
+   npx expo start
+```
+
+# Technical Decisions
+- expo-notifications: Handles scheduling and displaying task notifications with actionable buttons.
+- TanStack Query (React Query): Manages asynchronous data fetching, caching, and updating for tasks.
+- Pull-to-Refresh: Implemented for efficient task list updates using React Native's FlatList.
+- State Management: Utilizes Zustand and zod to manage user authentication and task data and for validation.
+
+# Assumptions
+- Users will create a task rooms before managing tasks.
+- Notifications will provide feedback to users with actionable buttons.
